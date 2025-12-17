@@ -5,7 +5,7 @@ import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 
-link = "https://bit.ly/48JuU9v" #here is what u need
+link = "https://google.com" #here is what u need
 
 class HandJob:
     def __init__(self, developerMode):
