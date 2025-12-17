@@ -55,6 +55,69 @@ class HandJob:
         distance = math.sqrt((thumb_tip.x - pinky_tip.x)**2 + (thumb_tip.y - pinky_tip.y)**2)
         return distance < self.pinching_threshold
 
+    def __finger_states(self, landmarks):
+        states = {}
+        states['thumb'] = landmarks[4].x > landmarks[2].x
+        states['index'] = landmarks[8].y < landmarks[6].y
+        states['middle'] = landmarks[12].y < landmarks[10].y
+        states['ring'] = landmarks[16].y < landmarks[14].y
+        states['pinky'] = landmarks[20].y < landmarks[18].y
+        return states
+
+    def detect_gesture(self, landmarks):
+        states = self.__finger_states(landmarks)
+        if states["index"] and states["middle"] and not states["ring"] and not states["pinky"]:
+            return True, "V_SIGN"
+
+        if states["thumb"] and not states["index"] and not states["middle"] and not states["ring"] and not states["pinky"]:
+            return True, "THUMBS_UP"
+
+        if states["index"] and not states["middle"] and not states["ring"] and not states["pinky"]:
+            return True, "Index Pointing"
+
+        if not states["index"] and states["middle"] and not states["ring"] and not states["pinky"]:
+            return True, "Middle Pointing"
+
+        if not states["index"] and not states["middle"] and states["ring"] and not states["pinky"]:
+            return True, "Ring Pointing"
+
+        if not states["index"] and not states["middle"] and not states["ring"] and states["pinky"]:
+            return True, "Pinky Pointing"
+
+        if states["index"] and not states["middle"] and not states["ring"] and states["pinky"]:
+            return True, "Rock On!!!"
+
+        if not states["index"] and not states["middle"] and not states["ring"] and not states["pinky"]:
+            return True, "Fist"
+
+        return False, None
+    
+    def check_for_gesture(self, landmark, frame):
+        if self.is_thumb_touching_index(landmark):
+            cv2.putText(frame, "Index and thumb pinched",
+                        (50, 50), cv2.FONT_HERSHEY_SIMPLEX,
+                        1, (0, 0, 255), 2)
+        if self.is_thumb_touching_middle(landmark):
+            cv2.putText(frame, "Middle and thumb pinched",
+                        (50, 50), cv2.FONT_HERSHEY_SIMPLEX,
+                        1, (0, 0, 255), 2)
+        if self.is_thumb_touching_ring(landmark):
+            cv2.putText(frame, "Ring and thumb pinched",
+                        (50, 50), cv2.FONT_HERSHEY_SIMPLEX,
+                        1, (0, 0, 255), 2)
+        if self.is_thumb_touching_pinky(landmark):
+            cv2.putText(frame, "Pinky and thumb pinched",
+                        (50, 50), cv2.FONT_HERSHEY_SIMPLEX,
+                        1, (0, 0, 255), 2)
+        gesture_detected, gesture = self.detect_gesture(landmark)
+        if gesture_detected and gesture is not None:
+            cv2.putText(frame, gesture,
+                        (50, 50), cv2.FONT_HERSHEY_SIMPLEX,
+                        1, (0, 0, 255), 2)
+
+
+
+
 # Example code
 if __name__ == "__main__":
     handjob = HandJob(developerMode = True)
@@ -65,6 +128,9 @@ if __name__ == "__main__":
             break
 
         result = handjob.detect(frame)
+        if result.hand_landmarks:
+            landmarks = result.hand_landmarks[0]
+            handjob.check_for_gesture(landmarks, frame)
         handjob.show_img(frame, result)
         cv2.waitKey(1)
 
