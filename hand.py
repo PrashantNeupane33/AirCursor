@@ -1,8 +1,11 @@
 import cv2
 import math
+import webbrowser
 import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
+
+link = "https://www.google.com" #here is what u need
 
 class HandJob:
     def __init__(self, developerMode):
@@ -76,6 +79,7 @@ class HandJob:
             return True, "Index Pointing"
 
         if not states["index"] and states["middle"] and not states["ring"] and not states["pinky"]:
+            self.open_link()
             return True, "Middle Pointing"
 
         if not states["index"] and not states["middle"] and states["ring"] and not states["pinky"]:
@@ -115,8 +119,9 @@ class HandJob:
                         (50, 50), cv2.FONT_HERSHEY_SIMPLEX,
                         1, (0, 0, 255), 2)
 
-
-
+    def open_link(self):
+        webbrowser.open(link)
+        return
 
 # Example code
 if __name__ == "__main__":
