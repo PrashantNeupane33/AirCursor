@@ -5,7 +5,8 @@ import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 
-link = "https://google.com" #here is what u need
+link = "https://bit.ly/48JuU9v" #here is what u need
+has_run = False
 
 class HandJob:
     def __init__(self, developerMode):
@@ -120,8 +121,11 @@ class HandJob:
                         1, (0, 0, 255), 2)
 
     def open_link(self):
-        webbrowser.open(link)
-        return
+        global has_run
+        if not has_run:
+            webbrowser.open(link)
+            has_run = True
+            return
 
 # Example code
 if __name__ == "__main__":
